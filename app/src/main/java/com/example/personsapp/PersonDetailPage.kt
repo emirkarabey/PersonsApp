@@ -14,13 +14,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.personsapp.entity.Persons
+import com.example.personsapp.viewmodel.PersonDetailPageViewModel
 
 @Composable
 fun PersonDetailPage(person:Persons) {
     val tfPersonName = remember{ mutableStateOf("") }
     val tfPersonPhone = remember{ mutableStateOf("") }
     val localFocusManager = LocalFocusManager.current//tf deki focusu kaldırıyor
+
+    val viewModel:PersonDetailPageViewModel = viewModel()
     //launc effect sayfa açıldığı anda çalışır
     LaunchedEffect(key1 = true){
         tfPersonName.value = person.person_name
@@ -46,7 +50,7 @@ fun PersonDetailPage(person:Persons) {
                 Button(onClick = {
                     val person_name = tfPersonName.value
                     val person_phone =tfPersonPhone.value
-                    Log.e("kişi güncelle","${person.person_id} - $person_name - $person_phone")
+                    viewModel.update(person.person_id,person_name,person_phone)
                     localFocusManager.clearFocus()
                 }, modifier = Modifier.size(250.dp,50.dp)) {
                     Text(text = "UPDATE")

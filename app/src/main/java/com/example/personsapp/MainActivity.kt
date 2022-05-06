@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +17,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,6 +26,7 @@ import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.example.personsapp.entity.Persons
 import com.example.personsapp.ui.theme.PersonsAppTheme
+import com.example.personsapp.viewmodel.HomePageViewModel
 import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
@@ -66,14 +69,8 @@ fun MyNavigation() {
 fun HomePage(navController: NavController) {
     val searchControl = remember { mutableStateOf(false) }
     val tf = remember { mutableStateOf("") }
-    val personsList = remember { mutableStateListOf<Persons>() }
-
-    LaunchedEffect(key1 = true){
-        val k1 = Persons(1,"Ahmet","111111")
-        val k2 = Persons(2,"Zeynep","222222")
-        personsList.add(k1)
-        personsList.add(k2)
-    }
+    val viewModel:HomePageViewModel = viewModel()
+    val personsList = viewModel.personList.observeAsState(listOf())
 
     Scaffold(
         topBar = {
@@ -84,7 +81,7 @@ fun HomePage(navController: NavController) {
                             value = tf.value,
                             onValueChange = {
                                 tf.value = it
-                                Log.e("Kişi arama",it)
+                                viewModel.search(it)
                             },
                             label = { Text(text = "Search") },
                             colors = TextFieldDefaults.textFieldColors(
@@ -122,9 +119,9 @@ fun HomePage(navController: NavController) {
         content = {
             LazyColumn{
                 items(
-                    count = personsList.count(),
+                    count = personsList.value!!.count(),
                     itemContent = {
-                        val person = personsList[it]
+                        val person = personsList.value!![it]
                         Card(modifier = Modifier
                             .padding(all = 5.dp)
                             .fillMaxWidth()) {
@@ -142,7 +139,7 @@ fun HomePage(navController: NavController) {
                                     Text(text = "${person.person_name} - ${person.person_phone}")
 
                                     IconButton(onClick = {
-                                        Log.e("Kişi Sil","${person.person_id}")
+                                        viewModel.delete(person.person_id)
                                     }) {
                                         Icon(painter = painterResource(id = R.drawable.ic_baseline_delete_outline_24),
                                             contentDescription = "",tint = Color.Gray)
