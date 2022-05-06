@@ -1,5 +1,6 @@
 package com.example.personsapp
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -13,6 +14,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.personsapp.entity.Persons
 import com.example.personsapp.ui.theme.PersonsAppTheme
 import com.example.personsapp.viewmodel.HomePageViewModel
+import com.example.personsapp.viewmodelfactory.HomePageViewModelFactory
 import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
@@ -69,9 +72,16 @@ fun MyNavigation() {
 fun HomePage(navController: NavController) {
     val searchControl = remember { mutableStateOf(false) }
     val tf = remember { mutableStateOf("") }
-    val viewModel:HomePageViewModel = viewModel()
+    val context = LocalContext.current
+    val viewModel:HomePageViewModel = viewModel(
+        factory = HomePageViewModelFactory(context.applicationContext as Application)
+    )
     val personsList = viewModel.personList.observeAsState(listOf())
 
+    LaunchedEffect(key1 = true){
+        viewModel.loadPersons()
+    }
+    
     Scaffold(
         topBar = {
             TopAppBar(
