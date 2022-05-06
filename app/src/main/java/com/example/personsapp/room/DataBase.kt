@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.personsapp.entity.Persons
 
+/*
 @Database(entities = [Persons::class],version = 1)
 abstract class DataBase : RoomDatabase() {
     abstract fun personsDao():PersonsDao
@@ -26,4 +27,7 @@ abstract class DataBase : RoomDatabase() {
             return INSTANCE
         }
     }
-}
+
+
+}*/
+
